@@ -1,0 +1,220 @@
+This document contains the pre-requisites to deploy clusters on
+<generic> Nutanix Environment.
+
+'''''
+
+link:https://docs.openshift.com/container-platform/4.14/installing/installing_nutanix/installing-nutanix-installer-provisioned.html.[Please
+refer to the official documentation for more information]
+
+= Bastion host
+
+Bastion host specifications.
+
+[width="100%",cols="50%,50%",options="header",]
+|===
+|Type |Requirement
+|Operating System |RHEL8 (or greater)
+
+|Hardware |2CPUs 8GB RAM
+
+|Storage |120GB
+
+|Internet |Access via proxy, list of
+https://docs.openshift.com/container-platform/4.14/installing/install_config/configuring-firewall.html[URLs].
+|===
+
+[arabic]
+. On the bastion host we need an SSH key for the installation, or the
+option to create one.
+. The Nutanix root CA certificates needs to be added to the system
+trust.
+* Download from the Prism Central
+* Extract the compressed file that contains the Nutanix root CA
+certificates
+* Add to the system trust
++
+[source,bash]
+----
+   cp certs/lin/* /etc/pki/ca-trust/source/anchors
+   update-ca-trust extract
+----
++
+
+IMPORTANT: The certificate needs to be signed by a CA, see
+link:#nutanix-certificates[Nutanix Certificates]
+
+. The OpenShift
+https://console.redhat.com/openshift/install/nutanix/installer-provisioned[Installer]
+binary or the possibility to download it.
+. A
+https://console.redhat.com/openshift/install/nutanix/installer-provisioned[Pull
+Secret] for fetching the images required for the installation.
+
+= Nutanix
+Pre-requisites for Nutanix versions.
+
+[width="100%",cols="50%,50%",options="header",]
+|===
+|Component |Requirement
+|Nutanix AOS |6.5.2.7 or later
+
+|Prism Central |pc.2002.6 or later
+
+|Required account privileges
+|https://docs.openshift.com/container-platform/4.14/installing/installing_nutanix/preparing-to-install-on-nutanix.html#installation-nutanix-installer-infra-reqs-account_preparing-to-install-on-nutanix[List]
+|===
+
+== Nutanix Storage
+
+Prerequisites for CSI Integration can be found here:
+https://portal.nutanix.com/page/documents/details?targetId=CSI-Volume-Driver-v2_6:csi-csi-plugin-prerequisites-r.html[Nutanix
+CSI Plugin Prerequisites]
+
+Firewall requirements for the CSI Integration can be found here:
+https://portal.nutanix.com/page/documents/list?type=software&filterKey=software&filterVal=Ports%20and%20Protocols&productType=CSI%20Volume%20Driver[Nutanix
+CSI Driver Firewall Configutation]
+
+== Nutanix Certificates
+
+The Nutanix environment needs to use a certificate signed by a CA.
+
+More information can be found in the
+https://docs.openshift.com/container-platform/4.14/installing/installing_nutanix/installing-nutanix-installer-provisioned.html#prerequisites[OpenShift
+Documentation]
+
+= Cluster
+
+== DNS
+
+[width="100%",cols="25%,25%,25%,25%",options="header",]
+|===
+|Serial |Description |Entry |Type
+|1 |API VIP DNS entry |api.<cluster_name>.<base_domain> |A/AAAA or CNAME
+|2 |Apps VIP DNS entry |*.apps.<cluster_name>.<base_domain> |A/AAAA or CNAME
+|===
+
+
+TIP: One API and one wildcard entry per cluster
+
+
+== Cluster SSL Certificates
+
+[width="100%",cols="25%,25%,25%,25%",options="header",]
+|===
+|Serial |Description |subjectAltName |Type
+|1 |API Certificate |api.<cluster_name>.<base_domain> |Key and Cert (PEM format)
+|2 |Wildcard Certificate |*.apps.<cluster_name>.<base_domain> |Key and Cert (PEM format)
+|===
+
+== Cluster Networks
+
+[cols=",,",options="header",]
+|===
+|Serial |Description |CIDR
+|1 |Node Network |[Machine CIDR]
+|2 |Service Network |[Service CIDR]
+|3 |Pod Network |[Pod CIDR]
+|4 |Host Prefix |23
+|===
+
+
+IMPORTANT: While the Service and Pod Networks are internal, please
+ensure that they do not overlap with external networks to avoid routing
+issues. Both the number of Pods and Nodes in a cluster are dependent on
+the hostPrefix. A default value of 23 with a pod CIDR of /14 will allow for 512 nodes and ~500
+pods per node.
+
+
+= Network
+
+[width="99%",cols="20%,16%,16%,16%,16%,16%",options="header",]
+|===
+|Serial |Description |Source |Destination |Port |Protocol
+|1 |DHCP Service available to hand out IP’s and reachable from node
+network |Node Network |DHCP |67, 68 |UDP
+
+|2 |Lease period 8 hours or less |- |DHCP |- |-
+
+|3 |NTP Service reachable from the node network |Node Network |NTP |123
+|UDP
+
+|4 |Cluster API access from Bastion host |Bastion host (Node network)
+|API VIP |6443 |TCP
+
+|5 |Outbound to repository source |Node Network | |443,22 |HTTPS, SSH
+
+|6 |LDAP for Identity Authentication |Node Network |LDAP Servers |389
+|LDAP
+
+|7 |Web Console (1) |Workstation/VDI |APPS VIP |80/443 |HTTPS
+
+|8 |DNS |Workstation/VDI |DNS Servers |53 |DNS
+|===
+
+____
+. Only required if the workstation/VDI will be on a separate network
+. All nodes must be in the same VLAN.
+. The default gateway should be configured to use the DHCP server.
+____
+
+== Proxy details
+
+[width="100%",cols="9%,26%,33%,32%",options="header",]
+|===
+|Serial |Type |Description |Value
+|1 |HTTP Proxy |httpProxy value |[Replace with actual value]
+|2 |HTTPS Proxy |httpsProxy value |[Replace with actual value]
+|3 |No Proxy |noProxy value |[Replace with actual value]
+|4 |Certificate Authority |CA Cert chain for the proxy |-
+|===
+
+
+IMPORTANT: The Proxy object will use the link:#cluster-networks[Cluster
+Networks] to populate the noProxy variable.
+
+
+== Alerting
+
+[cols=",,,,",options="header",]
+|===
+|Description |Source |Destination |Port |Protocol
+|Outbound to the SMTP server |Node Network |SMTP Server |587 |TCP
+|===
+
+= Validation
+
+The OpenShift installer does not validate the sanity of the DNS records,
+network or DHCP etc while deploying a cluster. Its expected the
+underlying required services are setup as per the requirements and they
+work as expected. However, its easy to run into issues. Below are few of
+the pointers that can help validate.
+
+* Ensure there are no duplicates with regards to the link:#DNS[DNS
+Entries].
++
+[source,bash]
+----
+dig api.<cluster-name>.<base_domain>
+----
+* Ensure NTP, DHCP and DNS service is reachable from the Node Network.
++
+[source,bash]
+----
+nc -vz <dhcp_server> 67
+nc -vz <ntp_server> 123
+----
+* Ensure you can reach the `HTTPS/9440` port on Prism Central and Prism
+Element from the Node network.
++
+[source,bash]
+----
+nc -vz <prism_central> 9440
+nc -vz <prism_element> 9440
+----
+* Ensure you can reach the Git server using HTTPS/SSH
++
+[source,bash]
+----
+nc -zv <git_url> 443
+nc -zv <git_url> 22
+----

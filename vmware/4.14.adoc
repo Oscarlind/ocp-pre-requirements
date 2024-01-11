@@ -66,13 +66,19 @@ Pre-requisites for VMware versions.
 [width="100%",cols="9%,26%,33%,32%",options="header",]
 |===
 |Serial |Type |Description |Value
-|1 |Domain | baes domain such as example.com |[Replace with actual value]
+|1 |Domain | base domain such as example.com |[Replace with actual value]
 |2 |Cluster Name |cluster name such as ocp4 |[Replace with actual value]
-
 |===
 
 == DHCP
- 2 Static IPs for API and Apps domain 
+  
+
+[width="100%",cols="9%,26%,33%,32%",options="header",]
+|===
+|Serial |Type |Description |Value
+|1 |Static IPs | 2 Static IPs for API and Apps domain |[Replace with actual value]
+|2 |Range for DHCP |IP range for the Controle Plane and Worker Nodes |[Replace with actual value]
+|===
 
 == DNS
 

@@ -62,6 +62,16 @@ Pre-requisites for VMware versions.
 
 = Cluster
 
+== Minimum Node Sizing
+|=== 
+| Machine          | Operating System           | vCPU | Virtual RAM | Storage | Input/Output Per Second (IOPS)
+
+| Bootstrap        | RHCOS                       | 4    | 16 GB       | 100 GB  | 300
+| Control plane    | RHCOS                       | 4    | 16 GB       | 100 GB  | 300
+| Compute          | RHCOS, RHEL 8.6 and later   | 2    | 8 GB        | 100 GB  | 300
+|===
+
+NOTE: This is for normal installations, not counting SNO (Single Node OpenShift) or Compact clusters. 
 
 [width="100%",cols="9%,26%,33%,32%",options="header",]
 |===

@@ -108,8 +108,8 @@ TIP: One API and one wildcard entry per cluster
 |===
 |Serial |Description |CIDR
 |1 |Node Network |[Machine CIDR]
-|2 |Service Network |[Service CIDR] 172.30.0.0/16
-|3 |Pod Network |[Pod CIDR] 10.128.0.0/14
+|2 |Service Network |[Service CIDR] default value 172.30.0.0/16
+|3 |Pod Network |[Pod CIDR] default value 10.128.0.0/14
 |4 |Host Prefix |23
 |===
 

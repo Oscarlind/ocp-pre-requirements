@@ -77,7 +77,7 @@ Pre-requisites for VMware versions.
 |===
 |Serial |Type |Description |Value
 |1 |Static IPs | 2 Static IPs for API and Apps domain |[Replace with actual value]
-|2 |Range for DHCP |IP range for the Controle Plane and Worker Nodes |[Replace with actual value]
+|2 |Range for DHCP |IP range for the Control Plane and Worker Nodes |[Replace with actual value]
 |===
 
 == DNS

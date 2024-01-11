@@ -62,6 +62,18 @@ Pre-requisites for VMware versions.
 
 = Cluster
 
+
+[width="100%",cols="9%,26%,33%,32%",options="header",]
+|===
+|Serial |Type |Description |Value
+|1 |Domain | baes domain such as example.com |[Replace with actual value]
+|2 |Cluster Name |cluster name such as ocp4 |[Replace with actual value]
+
+|===
+
+== DHCP
+ 2 Static IPs for API and Apps domain 
+
 == DNS
 
 [width="100%",cols="25%,25%,25%,25%",options="header",]
@@ -90,8 +102,8 @@ TIP: One API and one wildcard entry per cluster
 |===
 |Serial |Description |CIDR
 |1 |Node Network |[Machine CIDR]
-|2 |Service Network |[Service CIDR]
-|3 |Pod Network |[Pod CIDR]
+|2 |Service Network |[Service CIDR] 172.30.0.0/16
+|3 |Pod Network |[Pod CIDR] 10.128.0.0/14
 |4 |Host Prefix |23
 |===
 

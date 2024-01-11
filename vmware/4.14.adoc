@@ -28,7 +28,7 @@ https://docs.openshift.com/container-platform/4.14/installing/install_config/con
 option to create one.
 . The VMware root CA certificates needs to be added to the system
 trust.
-* Download https://kb.vmware.com/s/article/2108294 [Certs] from the vCenter
+* Download https://kb.vmware.com/s/article/2108294[Certs] from the vCenter
 * Extract the compressed file that contains the vCenter root CA certificates.
 * Add to the system trust
 +

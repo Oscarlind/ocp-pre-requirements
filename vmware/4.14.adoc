@@ -49,6 +49,9 @@ Secret] for fetching the images required for the installation.
 = VMware
 Pre-requisites for VMware versions.
 
+* ESXi hosts time are synchronized.
+* Storage vMotion is not supported on OCP. Customer must disable it.
+
 [width="100%",cols="50%,50%",options="header",]
 |===
 |Component |Requirement
@@ -59,6 +62,7 @@ Pre-requisites for VMware versions.
 |Required account privileges
 |https://docs.openshift.com/container-platform/4.14/installing/installing_vsphere/installing-vsphere-installer-provisioned.html#installation-vsphere-installer-infra-requirements_installing-vsphere-installer-provisioned[List]
 |===
+
 
 = Cluster
 
@@ -91,6 +95,8 @@ NOTE: This is for normal installations, not counting SNO (Single Node OpenShift)
 |===
 
 == DNS
+
+All these records are resolvable by both clients external to the cluster and from all the nodes within the cluster.
 
 [width="100%",cols="25%,25%,25%,25%",options="header",]
 |===
@@ -186,6 +192,11 @@ Networks] to populate the noProxy variable.
 |Description |Source |Destination |Port |Protocol
 |Outbound to the SMTP server |Node Network |SMTP Server |587 |TCP
 |===
+
+
+== Image Registry 
+
+At least 100 GB block storage is available for cluster internal registry if no file storage is available.
 
 = Validation
 

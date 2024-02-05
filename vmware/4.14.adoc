@@ -13,7 +13,7 @@ Bastion host specifications.
 [width="100%",cols="50%,50%",options="header",]
 |===
 |Type |Requirement
-|Operating System |RHEL8 (or greater)
+|Operating System |RHEL8 (or greater https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/performing_a_standard_rhel_9_installation/index[RHEL9]) 
 
 |Hardware |2CPUs 8GB RAM
 

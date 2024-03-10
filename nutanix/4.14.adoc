@@ -218,3 +218,17 @@ nc -vz <prism_element> 9440
 nc -zv <git_url> 443
 nc -zv <git_url> 22
 ----
+
+= Misc 
+
+NOTE: 
+After installing the oc and openshift-install binaries, it is useful to set up (and source) the bash commands completion:
+
+[source, bash]
+----
+[root@demo ~]# oc completion bash > /etc/bash_completion.d/openshift
+[root@demo ~]# openshift-install completion bash \
+> /etc/bash_completion.d/openshift-install
+[root@demo ~]# source /etc/bash_completion.d/openshift
+[root@demo ~]# source /etc/bash_completion.d/openshift-install
+----

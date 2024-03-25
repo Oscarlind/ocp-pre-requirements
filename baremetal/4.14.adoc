@@ -1,0 +1,310 @@
+This document contains the pre-requisites to deploy Bare Metal **OpenShift 4.14** clusters using Assisted Installer.
+
+'''''
+
+link:https://access.redhat.com/documentation/en-us/assisted_installer_for_openshift_container_platform/2024/html/installing_openshift_container_platform_with_the_assisted_installer/index[Please refer to the official documentation for more information]
+
+= Bastion host
+
+Bastion host specifications.
+
+[width="100%",cols="50%,50%",options="header",]
+|===
+|Type |Requirement
+|Operating System |RHEL8 (or greater https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/performing_a_standard_rhel_9_installation/index[RHEL9]) 
+
+|Hardware |2CPUs 8GB RAM
+
+|Storage |120GB
+
+|Internet |Access via proxy, list of
+https://docs.openshift.com/container-platform/4.14/installing/install_config/configuring-firewall.html[URLs].
+|===
+
+[arabic]
+. On the bastion host we need an SSH key for the installation, or the
+option to create one.
+. A
+https://console.redhat.com/openshift/install/nutanix/installer-provisioned[Pull
+Secret] for fetching the images required for the installation.
+
+= Assisted Installer
+
+Using the Assisted Installer for cluster deployments.
+
+== Preinstallation considerations
+
+Before installing OpenShift Container Platform with the Assisted Installer, you must consider the following configuration choices:
+
+- Which base domain to use
+- Which OpenShift Container Platform product version to install
+- Whether to install a full cluster OpenShift
+- Whether to use a DHCP server or a static network configuration
+- Whether to use IPv4 or dual-stack networking
+
+== Using the Assisted Installer
+The Assisted Installer is a user-friendly installation solution offered on the Red Hat Hybrid Cloud Console. The Assisted Installer supports the various deployment platforms with a focus on bare metal, Nutanix, and vSphere infrastructures.
+
+The Assisted Installer provides installation functionality as a service. This software-as-a-service (SaaS) approach has the following advantages:
+
+- Web user interface: The web user interface performs cluster installation without the user having to create the installation configuration files manually.
+- No bootstrap node: A bootstrap node is not required when installing with the Assisted Installer. The bootstrapping process executes on a node within the cluster.
+- Hosting: The Assisted Installer hosts:
+
+    -- Ignition files
+    -- The installation configuration
+    -- A discovery ISO
+    -- The installer
+
+- Streamlined installation workflow: Deployment does not require in-depth knowledge of OpenShift Container Platform. The Assisted Installer provides reasonable defaults and provides the installer as a service, which:
+
+    -- Eliminates the need to install and run the OpenShift Container Platform installer locally.
+    -- Ensures the latest version of the installer up to the latest tested z-stream releases. Older versions remain available, if needed.
+    -- Enables building automation by using the API without the need to run the OpenShift Container Platform installer locally.
+
+- Advanced networking: The Assisted Installer supports IPv4 networking with SDN and OVN, IPv6 and dual stack networking with OVN only, NMState-based static IP addressing, and an HTTP/S proxy. OVN is the default Container Network Interface (CNI) for OpenShift Container Platform 4.12 and later, but you can use SDN.
+
+- Preinstallation validation: The Assisted Installer validates the configuration before installation to ensure a high probability of success. The validation process includes the following checks:
+
+    -- Ensuring network connectivity
+    -- Ensuring sufficient network bandwidth
+    -- Ensuring connectivity to the registry
+    -- Ensuring time synchronization between cluster nodes
+    -- Verifying that the cluster nodes meet the minimum hardware requirements
+    -- Validating the installation configuration parameters
+
+- REST API: The Assisted Installer has a REST API, enabling automation.
+
+- The Assisted Installer supports installing OpenShift Container Platform on premises in a connected environment, including with an optional HTTP/S proxy. It can install the following:
+
+- Highly available OpenShift Container Platform or single-node OpenShift (SNO)
+
+- OpenShift Container Platform on bare metal, Nutanix, or vSphere with full platform integration, or other virtualization platforms without integration
+
+- Optionally OpenShift Virtualization and OpenShift Data Foundation
+
+- The user interface provides an intuitive interactive workflow where automation does not exist or is not required. Users may also automate installations using the REST API.
+
+== Setting the cluster details
+
+To create a cluster with the Assisted Installer web user interface, use the following procedure.
+
+- Log in to the https://console.redhat.com/[RedHat Hybrid Cloud Console.]
+- In the menu, click OpenShift.
+- Click Create cluster.
+- Click the Datacenter tab.
+- Under the Assisted Installer section, select Create cluster.
+- Enter a name for the cluster in the Cluster name field.
+- Enter a base domain for the cluster in the Base domain field. All subdomains for the cluster will use this base domain.
+- Select the version of OpenShift Container Platform to install.
+- Optional: Select Install single node Openshift (SNO) if you want to install OpenShift Container Platform on a single node.
+- Optional: The Assisted Installer already has the pull secret associated to your account. If you want to use a different pull secret, select Edit pull secret.
+- Optional: Assisted Installer defaults to using x86_64 CPU architecture. If you are installing OpenShift Container Platform on 64-bit ARM CPUs, select Use arm64 CPU architecture. Keep in mind, some features are not available with ARM64 CPU architecture.
+- Optional: If you are using a static IP configuration for the cluster nodes instead of DHCP reservations, select Static network configuration.
+- Optional: If you want to enable encryption of the installation disks, select Enable encryption of installation disks. For multi-node clusters, you can choose to encrypt the control plane and worker node installation disks separately.
+
+== Configuring host network interfaces
+
+The Assisted Installer supports IPv4 networking and dual stack networking. The Assisted Installer also supports configuring host network interfaces with the NMState library, a declarative network manager API for hosts. You can use NMState to deploy hosts with static IP addressing, bonds, VLANs and other advanced networking features. If you chose to configure host network interfaces, you must set network-wide configurations. Then, you must create a host-specific configuration for each host and generate the discovery ISO with the host-specific settings.
+
+- Select the internet protocol version. Valid options are IPv4 and Dual stack.
+- If the cluster hosts are on a shared VLAN, enter the VLAN ID.
+- Enter the network-wide IP addresses. If you selected Dual stack networking, you must enter both IPv4 and IPv6 addresses.
+    a. Enter the cluster network’s IP address range in CIDR notation.
+    b. Enter the default gateway IP address.
+    c. Enter the DNS server IP address.
+- Enter the host-specific configuration.
+    a. If you are only setting a static IP address that uses a single network interface, use the form view to enter the IP address and the MAC address for the host.
+    b. If you are using multiple interfaces, bonding, or other advanced networking features, use the YAML view and enter the desired network state for the host using NMState syntax.
+    c. Add the MAC address and interface name for each interface used in your network configuration.
+
+== HTTP server
+
+Assisted Installer needs to host an ISO file on an HTTP server. This ISO file is then used to boot the different nodes in order for them to join the OpenShift cluster. The HTTP server running on bastion will be used to host that ISO file.
+
+> NOTE: iPXE and USB can be used as alternatives
+
+= Cluster
+
+[width="100%",cols="9%,26%,33%,32%",options="header",]
+|===
+|Serial |Type |Description |Value
+|1 |Domain | base domain such as example.com |[Replace with actual value]
+|2 |Cluster Name |cluster name such as ocp4 |[Replace with actual value]
+|===
+
+== Minimum Node Sizing
+|=== 
+| Machine          | Operating System           | Count | vCPU | Virtual RAM | Storage | Input/Output Per Second (IOPS)
+| Control plane    | RHCOS                      |3      | 4    | 16 GB       | 100 GB  | 300
+| Compute          | RHCOS, RHEL 8.6 and later  |x      | 2    | 8 GB        | 100 GB  | 300
+|===
+
+NOTE: This is for normal installations, not counting SNO (Single Node OpenShift) or Compact clusters. 
+
+== DHCP (Optional)
+  
+
+[width="100%",cols="9%,26%,33%,32%",options="header",]
+|===
+|Serial |Type |Description |Value
+|1 |Static IPs | 2 Static IPs for API and Apps domain |[Replace with actual value]
+|2 |Range for DHCP |IP range for the Control Plane and Worker Nodes |[Replace with actual value]
+|===
+
+== Static IPs (Optional)
+  
+
+[width="100%",cols="9%,26%,33%,32%",options="header",]
+|===
+|Serial |Type |Description |Value
+|1 |Static IPs | 2 Static IPs for API and Apps domain |[Replace with actual value]
+|2 |Static IPs | For each node |[Replace with actual value]
+|===
+
+== DNS
+
+All these records are resolvable by both clients external to the cluster and from all the nodes within the cluster.
+
+[width="100%",cols="25%,25%,25%,25%",options="header",]
+|===
+|Serial |Description |Entry |Type
+|1 |API VIP DNS entry |api.<cluster_name>.<base_domain> |A/AAAA or CNAME
+|2 |Apps VIP DNS entry |*.apps.<cluster_name>.<base_domain> |A/AAAA or CNAME
+|3 |Each node (If static) |Name resolution for nodes |A/AAAA
+|3 |Each node (If static) |Reverse name resolution for nodes |PTR
+|===
+
+
+TIP: One API and one wildcard entry per cluster
+
+
+== Cluster SSL Certificates
+
+[width="100%",cols="25%,25%,25%,25%",options="header",]
+|===
+|Serial |Description |subjectAltName |Type
+|1 |API Certificate |api.<cluster_name>.<base_domain> |Key and Cert (PEM format)
+|2 |Wildcard Certificate |*.apps.<cluster_name>.<base_domain> |Key and Cert (PEM format)
+|===
+
+== Cluster Networks
+
+[cols=",,",options="header",]
+|===
+|Serial |Description |CIDR
+|1 |Node Network |[Machine CIDR]
+|2 |Service Network |[Service CIDR] default value 172.30.0.0/16
+|3 |Pod Network |[Pod CIDR] default value 10.128.0.0/14
+|4 |Host Prefix |23
+|===
+
+
+IMPORTANT: While the Service and Pod Networks are internal, please
+ensure that they do not overlap with external networks to avoid routing
+issues. Both the number of Pods and Nodes in a cluster are dependent on
+the hostPrefix. A default value of 23 with a pod CIDR of /14 will allow for 512 nodes and ~500
+pods per node.
+
+
+= Network
+
+[width="99%",cols="20%,16%,16%,16%,16%,16%",options="header",]
+|===
+|Serial |Description |Source |Destination |Port |Protocol
+|1 |DHCP Service available to hand out IP’s and reachable from node
+network |Node Network |DHCP |67, 68 |UDP
+
+|2 |Lease period 8 hours or less |- |DHCP |- |-
+
+|3 |NTP Service reachable from the node network |Node Network |NTP |123
+|UDP
+
+|4 |Cluster API access from Bastion host |Bastion host (Node network)
+|API VIP |6443 |TCP
+
+|5 |Outbound to repository source |Node Network | |443,22 |HTTPS, SSH
+
+|6 |LDAP for Identity Authentication |Node Network |LDAP Servers |389
+|LDAP
+
+|7 |Web Console (1) |Workstation/VDI |APPS VIP |80/443 |HTTPS
+
+|8 |DNS |Workstation/VDI |DNS Servers |53 |DNS
+|===
+
+____
+. Only required if the workstation/VDI will be on a separate network
+. The default gateway should be configured to use the DHCP server.
+____
+
+== Proxy details
+
+[width="100%",cols="9%,26%,33%,32%",options="header",]
+|===
+|Serial |Type |Description |Value
+|1 |HTTP Proxy |httpProxy value |[Replace with actual value]
+|2 |HTTPS Proxy |httpsProxy value |[Replace with actual value]
+|3 |No Proxy |noProxy value |[Replace with actual value]
+|4 |Certificate Authority |CA Cert chain for the proxy |-
+|===
+
+
+IMPORTANT: The Proxy object will use the link:#cluster-networks[Cluster
+Networks] to populate the noProxy variable.
+
+
+== Alerting
+
+[cols=",,,,",options="header",]
+|===
+|Description |Source |Destination |Port |Protocol
+|Outbound to the SMTP server |Node Network |SMTP Server |587 |TCP
+|===
+
+
+== Image Registry 
+
+At least 100 GB block storage is available for cluster internal registry if no file storage is available.
+
+= Validation
+
+The OpenShift installer does not validate the sanity of the DNS records,
+network or DHCP etc while deploying a cluster. Its expected the
+underlying required services are setup as per the requirements and they
+work as expected. However, its easy to run into issues. Below are few of
+the pointers that can help validate.
+
+* Ensure there are no duplicates with regards to the link:#DNS[DNS
+Entries].
++
+[source,bash]
+----
+dig api.<cluster-name>.<base_domain>
+----
+* Ensure NTP, DHCP and DNS service is reachable from the Node Network.
++
+[source,bash]
+----
+nc -vz <dhcp_server> 67
+nc -vz <ntp_server> 123
+
+----
+* Ensure you can reach the Git server using HTTPS/SSH
++
+[source,bash]
+----
+nc -zv <git_url> 443
+nc -zv <git_url> 22
+----
+
+= Misc 
+
+NOTE: 
+After installing the oc and openshift-install binaries, it is useful to set up (and source) the bash commands completion:
+
+[source, bash]
+----
+[root@demo ~]# oc completion bash > /etc/bash_completion.d/openshift
+[root@demo ~]# source /etc/bash_completion.d/openshift
+----

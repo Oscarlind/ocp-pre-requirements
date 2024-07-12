@@ -118,14 +118,6 @@ The Assisted Installer supports IPv4 networking and dual stack networking. The A
     b. If you are using multiple interfaces, bonding, or other advanced networking features, use the YAML view and enter the desired network state for the host using NMState syntax.
     c. Add the MAC address and interface name for each interface used in your network configuration.
 
-== HTTP server
-
-Assisted Installer needs to host an ISO file on an HTTP server. This ISO file is then used to boot the different nodes in order for them to join the OpenShift cluster. The HTTP server running on bastion will be used to host that ISO file.
-
-TIP: When doing ZTP and if TLS is enabled for the HTTP server, it also needs a valid certificate that is trusted by the cluster
-
-> NOTE: iPXE and USB can be used as alternatives to the HTTP server
-
 = Cluster
 
 [width="100%",cols="9%,26%,33%,32%",options="header",]
@@ -227,7 +219,7 @@ network |Node Network |DHCP |67, 68 |UDP
 
 |5 |Outbound to repository source |Node Network | |443,22 |HTTPS, SSH
 
-|6 |LDAP for Identity Authentication |Node Network |LDAP Servers |389
+|6 |LDAP for Identity Authentication |Node Network |LDAP Servers |636
 |LDAP
 
 |7 |Web Console (1) |Workstation/VDI |APPS VIP |80/443 |HTTPS

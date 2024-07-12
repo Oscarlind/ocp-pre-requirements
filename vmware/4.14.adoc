@@ -154,7 +154,7 @@ network |Node Network |DHCP |67, 68 |UDP
 
 |5 |Outbound to repository source |Node Network | |443,22 |HTTPS, SSH
 
-|6 |LDAP for Identity Authentication |Node Network |LDAP Servers |389
+|6 |LDAP for Identity Authentication |Node Network |LDAP Servers |636
 |LDAP
 
 |7 |Web Console (1) |Workstation/VDI |APPS VIP |80/443 |HTTPS

@@ -5,29 +5,31 @@ link:https://docs.openshift.com/container-platform/4.14/installing/installing_wi
 
 :toc:
 :toclevels: 3
-:sectnums:
 :toc-title: Table of Contents
 
 = Table of Contents
 
-1. <<bastion-host, **Bastion Host**>>
-2. <<agent-based-installer,️ **Agent Based Installer**>>
-   * <<setting-cluster-details, Setting the Cluster Details>>
-3. <<cluster, **Cluster**>>
-   * <<minimum-node-sizing, Minimum Node Sizing>>
-   * <<dhcp, DHCP (Optional)>>
-   * <<static-ips, Static IP's (Optional)>>
-   * <<dns, DNS>>
-   * <<ssl-certificates, Cluster SSL Certificates>>
-   * <<cluster-networks, Cluster Networks>>
-4. <<network, **Network**>>
-   * <<disconnected-environment, Disconnected Environment>>
-   * <<proxy-details, Proxy Details>>
-   * <<alerting, Alerting>>
-   * <<image-registry, Image Registry>>
-5. <<validation, **Validation**>>
-6. <<misc, **Miscellaneous**>>
-
+1. <<bastion-host,Bastion Host>>
+2. <<agent-based-installer,Agent Based Installer>>
+   * <<host-configurations,Host Configurations>>
+   ** <<example-agentconfig,Example agentconfig>>
+3. <<cluster,Cluster>>
+   * <<minimum-node-sizing,Minimum Node Sizing>>
+   * <<dhcp,DHCP (Optional)>>
+   * <<static-ips,Static IP's (Optional)>>
+   * <<dns,DNS>>
+   * <<ssl-certificates,Cluster SSL Certificates>>
+   * <<cluster-networks,Cluster Networks>>
+4. <<network,Network>>
+   * <<disconnected-environment,Disconnected Environment>>
+   * <<proxy-details,Proxy Details>>
+   * <<alerting,Alerting>>
+   * <<image-registry,Image Registry>>
+5. <<validation,Validation>>
+   * <<install-config-yaml,Install-config.yaml>>
+   * <<agent-config-yaml,agent-config.yaml>>
+   * <<misc-validation,Miscellaneous Validation>>
+6. <<misc,Miscellaneous>>
 
 
 
@@ -58,10 +60,63 @@ option to create one.
 = Agent Based Installer
 
 Using the Agent Based Installer for cluster deployments.
+The Agent-based installation method provides the flexibility to boot your on-premises servers in any way that you choose by leveraging the Assisted Service.
 
-== Setting the cluster details
+ABI requires the following steps:
 
+1. Downloading the Agent-Based Installer
 
+2. Creating the preferred configuration inputs with network customizations for disconnected installation, dual-stack networking and other machine configuration (**install-config.yaml**, **agent-config.yaml** and other optional manifests)
+
+3. Generating the bootable ISO image via the `openshift-install agent create image`
+
+4. Hosting the bootable ISO image on an accessible web server
+
+5. Booting the first installation host with the bootable ISO image.
+
+6. Once the first installation host boots with the ISO image, the host will run the Assisted Service and continue the installation automatically.
+
+The installation host can be booted via IPMI by using iDRAC and the Redfish standard with Dell's OEM extensions with the `idrac-virtualmedia://` protocol.
+
+If booting virtualmedia via Redfish is not feasible, the Agent-Based Installer generates PXE assets and optional iPXE scripts via the `openshift-install agent create pxe-files` command, which can then be uploaded to where they will be accessible during the boot process.
+
+NOTE: See the link:https://docs.openshift.com/container-platform/4.14/installing/installing_with_agent_based_installer/installing-with-agent-based-installer.html[Red Hat OpenShift documentation on Agent-Based Installer] for more information.
+
+== Host Configurations
+You can make additional configurations for each host on the cluster in the agent-config.yaml file, such as network configurations and root device hints.
+
+NOTE: For each host you configure, you must provide the MAC address of an interface on the host to specify which host you are configuring.
+
+=== Example agentconfig
+```yaml
+apiVersion: v1beta1
+kind: AgentConfig
+metadata:
+  name: example-cluster
+rendezvousIP: 192.168.111.80
+hosts:
+  - hostname: master-1
+    role: master
+    interfaces:
+      - name: eno1
+        macAddress: 00:ef:44:21:e6:a5
+  - hostname: master-2
+    role: master
+    interfaces:
+      - name: eno1
+        macAddress: 00:ef:44:21:e6:a6
+  - hostname: master-3
+    role: master
+    interfaces:
+      - name: eno1
+        macAddress: 00:ef:44:21:e6:a7
+  - hostname: worker-1
+    role: worker
+    interfaces:
+      - name: eno1
+        macAddress: 00:ef:44:21:e6:a8
+```
+TIP: More complex network configurations such as bonds etc are also possible to define here. See link:https://docs.openshift.com/container-platform/4.14/installing/installing_with_agent_based_installer/preparing-to-install-with-agent-based-installer.html#agent-install-sample-config-bonds-vlans_preparing-to-install-with-agent-based-installer[examples in the documentation]
 
 = Cluster
 .Cluster Details
@@ -76,8 +131,8 @@ Using the Agent Based Installer for cluster deployments.
 .Minimum sizing
 |=== 
 | Machine          | Operating System           | Count | vCPU | Virtual RAM | Storage | Input/Output Per Second (IOPS)
-| Control plane    | RHCOS                      |3      | 4    | 16 GB       | 100 GB  | 300
-| Compute          | RHCOS, RHEL 8.6 and later  |x      | 2    | 8 GB        | 100 GB  | 300
+| Control plane    | RHCOS                      |3      | 8    | 16 GB       | 120 GB  | 300
+| Compute          | RHCOS, RHEL 8.6 and later  |x      | 2    | 8 GB        | 120 GB  | 300
 |===
 
 NOTE: This is for normal installations, not counting SNO (Single Node OpenShift) or Compact clusters. 
@@ -298,12 +353,30 @@ At least 100 GB block storage is available for cluster internal registry if no f
 
 = Validation
 
-The OpenShift installer does not validate the sanity of the DNS records,
-network or DHCP etc while deploying a cluster. Its expected the
-underlying required services are setup as per the requirements and they
-work as expected. However, its easy to run into issues. Below are few of
-the pointers that can help validate.
+The Agent-based Installer performs validation checks on user defined YAML files before the ISO is created. Once the validations are successful, the agent ISO is created.
 
+== Install-config.yaml
+
+baremetal, vsphere and none platforms are supported.
+
+The networkType parameter must be OVNKubernetes in the case of none platform.
+
+apiVIPs and ingressVIPs parameters must be set for bare metal and vSphere platforms.
+
+Some host-specific fields in the bare metal platform configuration that have equivalents in agent-config.yaml file are ignored. A warning message is logged if these fields are set.
+
+== agent-config.yaml
+
+Each interface must have a defined MAC address. Additionally, all interfaces must have a different MAC address.
+
+At least one interface must be defined for each host.
+
+World Wide Name (WWN) vendor extensions are not supported in root device hints.
+
+The role parameter in the host object must have a value of either master or worker.
+
+
+== Miscellaneous Validation
 * Ensure there are no duplicates with regards to the link:#DNS[DNS
 Entries].
 +
@@ -329,8 +402,7 @@ nc -zv <git_url> 22
 
 = Misc 
 
-NOTE: 
-After installing the oc and openshift-install binaries, it is useful to set up (and source) the bash commands completion:
+NOTE: After installing the oc and openshift-install binaries, it is useful to set up (and source) the bash commands completion:
 
 [source, bash]
 ----

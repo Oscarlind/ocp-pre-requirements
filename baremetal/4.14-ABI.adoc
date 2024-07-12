@@ -1,0 +1,339 @@
+This document contains the pre-requisites to deploy Bare Metal **OpenShift 4.14** clusters using the Agent Based Installer
+
+''''
+link:https://docs.openshift.com/container-platform/4.14/installing/installing_with_agent_based_installer/preparing-to-install-with-agent-based-installer.html[Please refer to the official documentation for more information]
+
+:toc:
+:toclevels: 3
+:sectnums:
+:toc-title: Table of Contents
+
+= Table of Contents
+
+1. <<bastion-host, **Bastion Host**>>
+2. <<agent-based-installer,️ **Agent Based Installer**>>
+   * <<setting-cluster-details, Setting the Cluster Details>>
+3. <<cluster, **Cluster**>>
+   * <<minimum-node-sizing, Minimum Node Sizing>>
+   * <<dhcp, DHCP (Optional)>>
+   * <<static-ips, Static IP's (Optional)>>
+   * <<dns, DNS>>
+   * <<ssl-certificates, Cluster SSL Certificates>>
+   * <<cluster-networks, Cluster Networks>>
+4. <<network, **Network**>>
+   * <<disconnected-environment, Disconnected Environment>>
+   * <<proxy-details, Proxy Details>>
+   * <<alerting, Alerting>>
+   * <<image-registry, Image Registry>>
+5. <<validation, **Validation**>>
+6. <<misc, **Miscellaneous**>>
+
+
+
+
+= Bastion host
+
+NOTE: This is only required if doing disconnected installations or to have a specific server for interacting with the cluster. 
+
+.Bastion host specifications.
+
+[width="100%",cols="50%,50%",options="header",]
+|===
+|Type |Requirement
+|Operating System |RHEL8 (or greater https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/performing_a_standard_rhel_9_installation/index[RHEL9]) 
+
+|Hardware |2CPUs 8GB RAM
+
+|Storage |120GB
+
+|Internet |Access via proxy, list of
+https://docs.openshift.com/container-platform/4.14/installing/install_config/configuring-firewall.html[URLs] (If used for mirroring).
+|===
+
+[arabic]
+. On the bastion host we need an SSH key for the installation, or the
+option to create one.
+. A https://console.redhat.com/openshift/install/nutanix/installer-provisioned[Pull Secret] for fetching the images required for the installation.
+
+= Agent Based Installer
+
+Using the Agent Based Installer for cluster deployments.
+
+== Setting the cluster details
+
+
+
+= Cluster
+.Cluster Details
+[width="100%",cols="9%,26%,33%,32%",options="header",]
+|===
+|Serial |Type |Description |Value
+|1 |Domain | base domain such as example.com |[Replace with actual value]
+|2 |Cluster Name |cluster name such as ocp4 |[Replace with actual value]
+|===
+
+== Minimum Node Sizing
+.Minimum sizing
+|=== 
+| Machine          | Operating System           | Count | vCPU | Virtual RAM | Storage | Input/Output Per Second (IOPS)
+| Control plane    | RHCOS                      |3      | 4    | 16 GB       | 100 GB  | 300
+| Compute          | RHCOS, RHEL 8.6 and later  |x      | 2    | 8 GB        | 100 GB  | 300
+|===
+
+NOTE: This is for normal installations, not counting SNO (Single Node OpenShift) or Compact clusters. 
+
+== DHCP (Optional)
+.DHCP  
+[width="100%",cols="9%,26%,33%,32%",options="header",]
+|===
+|Serial |Type |Description |Value
+|1 |Static IPs | 2 Static IPs for API and Apps domain |[Replace with actual value]
+|2 |Range for DHCP |IP range for the Control Plane and Worker Nodes |[Replace with actual value]
+|===
+
+== Static IP's (Optional)
+.Static IP's  
+[width="100%",cols="9%,26%,33%,32%",options="header",]
+|===
+|Serial |Type |Description |Value
+|1 |Static IPs | 2 Static IPs for API and Apps domain |[Replace with actual value]
+|2 |Static IPs | For each node |[Replace with actual value]
+|===
+
+== DNS
+All these records are resolvable by both clients external to the cluster and from all the nodes within the cluster.
+
+.DNS Records
+[width="100%",cols="25%,25%,25%,25%",options="header",]
+|===
+|Serial |Description |Entry |Type
+|1 |API VIP DNS entry |api.<cluster_name>.<base_domain> |A/AAAA or CNAME
+|2 |Apps VIP DNS entry |*.apps.<cluster_name>.<base_domain> |A/AAAA or CNAME
+|3 |Each node (If static) |Name resolution for nodes |A/AAAA
+|3 |Each node (If static) |Reverse name resolution for nodes |PTR
+|===
+
+
+TIP: One API and one wildcard entry per cluster
+
+
+== Cluster SSL Certificates
+.Cluster Certificates
+[width="100%",cols="25%,25%,25%,25%",options="header",]
+|===
+|Serial |Description |subjectAltName |Type
+|1 |API Certificate |api.<cluster_name>.<base_domain> |Key and Cert (PEM format)
+|2 |Wildcard Certificate |*.apps.<cluster_name>.<base_domain> |Key and Cert (PEM format)
+|===
+
+== Cluster Networks
+.Cluster Networks
+[cols=",,",options="header",]
+|===
+|Serial |Description |CIDR
+|1 |Node Network |[Machine CIDR]
+|2 |Service Network |[Service CIDR] default value 172.30.0.0/16
+|3 |Pod Network |[Pod CIDR] default value 10.128.0.0/14
+|4 |Host Prefix |23
+|===
+
+
+IMPORTANT: While the Service and Pod Networks are internal, please
+ensure that they do not overlap with external networks to avoid routing
+issues. Both the number of Pods and Nodes in a cluster are dependent on
+the hostPrefix. A default value of 23 with a pod CIDR of /14 will allow for 512 nodes and ~500
+pods per node.
+
+
+= Network
+.Networks
+[width="99%",cols="20%,16%,16%,16%,16%,16%",options="header",]
+|===
+|Serial |Description |Source |Destination |Port |Protocol
+|1 |DHCP Service available to hand out IP’s and reachable from node
+network |Node Network |DHCP |67, 68 |UDP
+
+|2 |Lease period 8 hours or less |- |DHCP |- |-
+
+|3 |NTP Service reachable from the node network |Node Network |NTP |123
+|UDP
+
+|4 |Cluster API access from Bastion host |Bastion host (Node network)
+|API VIP |6443 |TCP
+
+|5 |Outbound to repository source |Node Network | |443,22 |HTTPS, SSH
+
+|6 |LDAP for Identity Authentication |Node Network |LDAP Servers |636
+|LDAP
+
+|7 |Web Console (1) |Workstation/VDI |APPS VIP |80/443 |HTTPS
+
+|8 |DNS |Workstation/VDI |DNS Servers |53 |DNS
+|===
+
+[NOTE]
+====
+. Only required if the workstation/VDI will be on a separate network
+. The default gateway should be configured to use the DHCP server.
+====
+
+== Disconnected environment
+
+.URLs to whitelist to mirror OpenShift content.
+[cols=3,cols="4,1,5",options=header]
+|===
+| URL    | Port   | Function
+
+| registry.redhat.io
+| 443
+| Provides core container images
+
+| access.redhat.com
+| 443
+| Hosts all the container images that are stored on the Red Hat Ecosystem Catalog, including core container images.
+
+| quay.io
+| 443
+| Provides core container images
+
+| cdn.quay.io
+| 443
+| Provides core container images
+
+| cdn01.quay.io
+| 443
+| Provides core container images
+
+| cdn02.quay.io
+| 443
+| Provides core container images
+
+| cdn03.quay.io
+| 443
+| Provides core container images
+
+| sso.redhat.com
+| 443
+| The https://console.redhat.com site uses authentication from sso.redhat.com.
+
+| registry.access.redhat.com
+| 443
+| Hosts all the container images that are stored on the Red Hat Ecosystem Catalog, including core container images.
+
+| mirror.openshift.com
+| 443
+| Required to access mirrored installation content and images. This site is also a source of release image signatures, although the Cluster Version Operator needs only a single functioning source.
+
+| storage.googleapis.com/openshift-release
+| 443
+| A source of release image signatures, although the Cluster Version Operator needs only a single functioning source.
+
+| quayio-production-s3.s3.amazonaws.com
+| 443
+| Required to access Quay image content in AWS.
+
+| api.openshift.com
+| 443
+| Required both for your cluster token and to check if updates are available for the cluster; Download graph data.
+
+| rhcos.mirror.openshift.com
+| 443
+| Required to download Red Hat Enterprise Linux CoreOS (RHCOS) images.
+
+| console.redhat.com
+| 443
+| Required for your cluster token.
+
+| registry.connect.redhat.com
+| 443
+| Required for all third-party images and certified operators.
+
+| rhc4tp-prod-z8cxf-image-registry-us-east-1-evenkyleffocxqvofrk.s3.dualstack.us-east-1.amazonaws.com
+| 443
+| Provides access to container images hosted on registry.connect.redhat.com
+
+| oso-rhc4tp-docker-registry.s3-us-west-2.amazonaws.com
+| 443
+| Required for Sonatype Nexus, F5 Big IP operators.
+
+| definitions.stackrox.io
+| 443
+| Required for downloading updated vulnerability definitions. Vulnerability definition updates allow Red Hat Advanced Cluster Security for Kubernetes to maintain up-to-date vulnerability data when new vulnerabilities are discovered or additional data sources are added.
+
+| collector-modules.stackrox.io
+| 443
+| Required to download updated kernel support packages. Updated Kernel support packages ensure that Red Hat Advanced Cluster Security for Kubernetes can monitor the latest operating systems and collect data about the network traffic and processes running inside the containers. Without these updates, Red Hat Advanced Cluster Security for Kubernetes might fail to monitor containers if you add new nodes in your cluster or if you update your nodes' operating system.
+
+|===
+
+
+== Proxy details
+.Proxy
+[width="100%",cols="9%,26%,33%,32%",options="header",]
+|===
+|Serial |Type |Description |Value
+|1 |HTTP Proxy |httpProxy value |[Replace with actual value]
+|2 |HTTPS Proxy |httpsProxy value |[Replace with actual value]
+|3 |No Proxy |noProxy value |[Replace with actual value]
+|4 |Certificate Authority |CA Cert chain for the proxy |-
+|===
+
+
+IMPORTANT: The Proxy object will use the link:#cluster-networks[Cluster
+Networks] to populate the noProxy variable.
+
+
+== Alerting
+.Alerting
+[cols=",,,,",options="header",]
+|===
+|Description |Source |Destination |Port |Protocol
+|Outbound to the SMTP server |Node Network |SMTP Server |587 |TCP
+|===
+
+
+== Image Registry 
+
+At least 100 GB block storage is available for cluster internal registry if no file storage is available.
+
+= Validation
+
+The OpenShift installer does not validate the sanity of the DNS records,
+network or DHCP etc while deploying a cluster. Its expected the
+underlying required services are setup as per the requirements and they
+work as expected. However, its easy to run into issues. Below are few of
+the pointers that can help validate.
+
+* Ensure there are no duplicates with regards to the link:#DNS[DNS
+Entries].
++
+[source,bash]
+----
+dig api.<cluster-name>.<base_domain>
+----
+* Ensure NTP, DHCP and DNS service is reachable from the Node Network.
++
+[source,bash]
+----
+nc -vz <dhcp_server> 67
+nc -vz <ntp_server> 123
+
+----
+* Ensure you can reach the Git server using HTTPS/SSH
++
+[source,bash]
+----
+nc -zv <git_url> 443
+nc -zv <git_url> 22
+----
+
+= Misc 
+
+NOTE: 
+After installing the oc and openshift-install binaries, it is useful to set up (and source) the bash commands completion:
+
+[source, bash]
+----
+[root@demo ~]# oc completion bash > /etc/bash_completion.d/openshift
+[root@demo ~]# source /etc/bash_completion.d/openshift
+----

@@ -1,0 +1,111 @@
+= RHACM - Red Hat Advanced Cluster Management
+
+== Placeholder
+
+=== RHACM networking requirements
+
+.Hub Cluster Network Requirements
+[cols=6,cols="2,2,2,3,1,3",options=header]
+|===
+| Source | Destination | Protocol | Connection | Port | Destination address
+
+| Hub cluster
+| Managed cluster
+| HTTPS
+| Retrieval of logs dynamically from Search console for the pods of the managed cluster, uses the klusterlet-addon-workmgr service that is running on the managed cluster
+| 443
+| IP address to access managed cluster route
+
+| Hub cluster
+| Managed cluster
+| HTTPS
+| Kubernetes API server of the managed cluster that is provisioned during installation to install the klusterlet
+| 6443
+| IP of Kubernetes managed cluster API server
+
+| Managed cluster
+| Channel Source
+| HTTPS
+|  The channel source, including GitHub, Object Store, and Helm repository, which is only required when you are using Application lifecycle, OpenShift GitOps, or Argo CD to connect
+| 443
+|  IP of the channel source
+
+| Managed cluster
+| Hub cluster
+| HTTPS
+| Managed cluster to push metrics and alerts that are gathered only for managed clusters that are running OpenShift Container Platform version 4.8, or later
+| 443
+| IP address to hub cluster access route
+
+| Managed cluster
+| Hub cluster
+| HTTPS
+| Kubernetes API Server of hub cluster that is watched for changes from the managed cluster
+| 6443
+| IP address of hub cluster Kubernetes API Server
+
+| Hub cluster
+| Object storage service
+| HTTPS
+| Sends Observability metric data for long term storage when the Cluster Backup Operator (OADP) is running
+| 443
+| IP address of ObjectStore
+
+| Hub cluster
+| Image Repository
+| HTTPS
+| Access images for OpenShift Container Platform and Red Hat Advanced Cluster Management
+| 443
+| IP address of image repository
+
+|===
+
+.Managed Cluster Network Requirements
+[cols=6,cols="2,2,2,3,1,3",options=header]
+
+|===
+| Source | Destination | Protocol | Connection | Port | Destination address
+
+| Hub cluster
+| Managed cluster
+| HTTPS
+| Sending of logs dynamically from Search console for the pods of the managed cluster, uses the `klusterlet-addon-workmgr` service that is running on the managed cluster
+| 443
+| IP address to access managed cluster route
+
+| Hub cluster
+| Managed cluster
+| HTTPS
+| Kubernetes API server of the managed cluster that is provisioned during installation to install the klusterlet
+| 6443
+| IP of Kubernetes managed cluster API server
+
+| Managed cluster
+| Hub cluster
+| HTTPS
+| Access images for OpenShift Container Platform and Red Hat Advanced Cluster Management
+| 443
+| IP address of image repository
+
+| Managed cluster
+| Hub cluster
+| HTTPS
+| Managed cluster to push metrics and alerts that are gathered only for managed clusters that are running OpenShift Container Platform version 4.13, or later
+| 443
+| IP address to hub cluster access route
+
+| Managed cluster
+| Hub cluster
+| HTTPS
+| Watches the Kubernetes API server of the hub cluster for changes
+| 6443
+| IP address of hub cluster Kubernetes API Server
+
+| Managed cluster
+| Hub cluster
+| HTTPS
+| The channel source, including GitHub, Object Store, and Helm repository, which is only required when you are using Application lifecycle, OpenShift GitOps, or Argo CD to connect
+| 443
+| IP of the channel source
+
+|===

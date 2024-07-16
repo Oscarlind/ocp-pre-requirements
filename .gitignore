@@ -1,0 +1,11 @@
+output/
+
+*.pdf
+*.log
+
+*.tmp
+*.swp
+
+.idea/
+.vscode/
+*.sublime-workspace

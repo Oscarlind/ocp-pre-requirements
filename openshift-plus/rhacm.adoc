@@ -1,6 +1,6 @@
-= RHACM - Red Hat Advanced Cluster Management
+== RHACM - Red Hat Advanced Cluster Management
 
-== Placeholder
+=== Placeholder
 
 === RHACM networking requirements
 

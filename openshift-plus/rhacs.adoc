@@ -1,6 +1,6 @@
-= RHACS - Red Hat Advanced Cluster Security
+== RHACS - Red Hat Advanced Cluster Security
 
-== Placeholder
+=== Placeholder
 
 === RHACS networking requirements
 

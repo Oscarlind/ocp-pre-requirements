@@ -4,7 +4,7 @@ This document contains the pre-requisites to deploy Bare Metal **OpenShift 4.14*
 
 link:https://access.redhat.com/documentation/en-us/assisted_installer_for_openshift_container_platform/2024/html/installing_openshift_container_platform_with_the_assisted_installer/index[Please refer to the official documentation for more information]
 
-= Bastion host
+== Bastion host
 
 Bastion host specifications.
 
@@ -28,11 +28,11 @@ option to create one.
 https://console.redhat.com/openshift/install/nutanix/installer-provisioned[Pull
 Secret] for fetching the images required for the installation.
 
-= Assisted Installer
+== Assisted Installer
 
 Using the Assisted Installer for cluster deployments.
 
-== Preinstallation considerations
+=== Preinstallation considerations
 
 Before installing OpenShift Container Platform with the Assisted Installer, you must consider the following configuration choices:
 
@@ -42,7 +42,7 @@ Before installing OpenShift Container Platform with the Assisted Installer, you 
 - Whether to use a DHCP server or a static network configuration
 - Whether to use IPv4 or dual-stack networking
 
-== Using the Assisted Installer
+=== Using the Assisted Installer
 The Assisted Installer is a user-friendly installation solution offered on the Red Hat Hybrid Cloud Console. The Assisted Installer supports the various deployment platforms with a focus on bare metal, Nutanix, and vSphere infrastructures.
 
 The Assisted Installer provides installation functionality as a service. This software-as-a-service (SaaS) approach has the following advantages:
@@ -85,7 +85,7 @@ The Assisted Installer provides installation functionality as a service. This so
 
 - The user interface provides an intuitive interactive workflow where automation does not exist or is not required. Users may also automate installations using the REST API.
 
-== Setting the cluster details
+=== Setting the cluster details
 
 To create a cluster with the Assisted Installer web user interface, use the following procedure.
 
@@ -103,7 +103,7 @@ To create a cluster with the Assisted Installer web user interface, use the foll
 - Optional: If you are using a static IP configuration for the cluster nodes instead of DHCP reservations, select Static network configuration.
 - Optional: If you want to enable encryption of the installation disks, select Enable encryption of installation disks. For multi-node clusters, you can choose to encrypt the control plane and worker node installation disks separately.
 
-== Configuring host network interfaces
+=== Configuring host network interfaces
 
 The Assisted Installer supports IPv4 networking and dual stack networking. The Assisted Installer also supports configuring host network interfaces with the NMState library, a declarative network manager API for hosts. You can use NMState to deploy hosts with static IP addressing, bonds, VLANs and other advanced networking features. If you chose to configure host network interfaces, you must set network-wide configurations. Then, you must create a host-specific configuration for each host and generate the discovery ISO with the host-specific settings.
 
@@ -118,7 +118,7 @@ The Assisted Installer supports IPv4 networking and dual stack networking. The A
     b. If you are using multiple interfaces, bonding, or other advanced networking features, use the YAML view and enter the desired network state for the host using NMState syntax.
     c. Add the MAC address and interface name for each interface used in your network configuration.
 
-= Cluster
+== Cluster
 
 [width="100%",cols="9%,26%,33%,32%",options="header",]
 |===
@@ -127,7 +127,7 @@ The Assisted Installer supports IPv4 networking and dual stack networking. The A
 |2 |Cluster Name |cluster name such as ocp4 |[Replace with actual value]
 |===
 
-== Minimum Node Sizing
+=== Minimum Node Sizing
 |=== 
 | Machine          | Operating System           | Count | vCPU | Virtual RAM | Storage | Input/Output Per Second (IOPS)
 | Control plane    | RHCOS                      |3      | 4    | 16 GB       | 100 GB  | 300
@@ -136,7 +136,7 @@ The Assisted Installer supports IPv4 networking and dual stack networking. The A
 
 NOTE: This is for normal installations, not counting SNO (Single Node OpenShift) or Compact clusters. 
 
-== DHCP (Optional)
+=== DHCP (Optional)
   
 
 [width="100%",cols="9%,26%,33%,32%",options="header",]
@@ -146,7 +146,7 @@ NOTE: This is for normal installations, not counting SNO (Single Node OpenShift)
 |2 |Range for DHCP |IP range for the Control Plane and Worker Nodes |[Replace with actual value]
 |===
 
-== Static IPs (Optional)
+=== Static IPs (Optional)
   
 
 [width="100%",cols="9%,26%,33%,32%",options="header",]
@@ -156,7 +156,7 @@ NOTE: This is for normal installations, not counting SNO (Single Node OpenShift)
 |2 |Static IPs | For each node |[Replace with actual value]
 |===
 
-== DNS
+=== DNS
 
 All these records are resolvable by both clients external to the cluster and from all the nodes within the cluster.
 
@@ -173,7 +173,7 @@ All these records are resolvable by both clients external to the cluster and fro
 TIP: One API and one wildcard entry per cluster
 
 
-== Cluster SSL Certificates
+=== Cluster SSL Certificates
 
 [width="100%",cols="25%,25%,25%,25%",options="header",]
 |===
@@ -182,7 +182,7 @@ TIP: One API and one wildcard entry per cluster
 |2 |Wildcard Certificate |*.apps.<cluster_name>.<base_domain> |Key and Cert (PEM format)
 |===
 
-== Cluster Networks
+=== Cluster Networks
 
 [cols=",,",options="header",]
 |===
@@ -201,7 +201,7 @@ the hostPrefix. A default value of 23 with a pod CIDR of /14 will allow for 512 
 pods per node.
 
 
-= Network
+== Network
 
 [width="99%",cols="20%,16%,16%,16%,16%,16%",options="header",]
 |===
@@ -232,7 +232,7 @@ ____
 . The default gateway should be configured to use the DHCP server.
 ____
 
-== Proxy details
+=== Proxy details
 
 [width="100%",cols="9%,26%,33%,32%",options="header",]
 |===
@@ -248,7 +248,7 @@ IMPORTANT: The Proxy object will use the link:#cluster-networks[Cluster
 Networks] to populate the noProxy variable.
 
 
-== Alerting
+=== Alerting
 
 [cols=",,,,",options="header",]
 |===
@@ -261,7 +261,7 @@ Networks] to populate the noProxy variable.
 
 At least 100 GB block storage is available for cluster internal registry if no file storage is available.
 
-= Validation
+== Validation
 
 The OpenShift installer does not validate the sanity of the DNS records,
 network or DHCP etc while deploying a cluster. Its expected the
@@ -292,7 +292,7 @@ nc -zv <git_url> 443
 nc -zv <git_url> 22
 ----
 
-= Misc 
+== Misc 
 
 NOTE: 
 After installing the oc and openshift-install binaries, it is useful to set up (and source) the bash commands completion:

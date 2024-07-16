@@ -3,37 +3,7 @@ This document contains the pre-requisites to deploy Bare Metal **OpenShift 4.14*
 ''''
 link:https://docs.openshift.com/container-platform/4.14/installing/installing_with_agent_based_installer/preparing-to-install-with-agent-based-installer.html[Please refer to the official documentation for more information]
 
-:toc:
-:toclevels: 3
-:toc-title: Table of Contents
-
-= Table of Contents
-
-1. <<bastion-host,Bastion Host>>
-2. <<agent-based-installer,Agent Based Installer>>
-   * <<host-configurations,Host Configurations>>
-   ** <<example-agentconfig,Example agentconfig>>
-3. <<cluster,Cluster>>
-   * <<minimum-node-sizing,Minimum Node Sizing>>
-   * <<dhcp,DHCP (Optional)>>
-   * <<static-ips,Static IP's (Optional)>>
-   * <<dns,DNS>>
-   * <<ssl-certificates,Cluster SSL Certificates>>
-   * <<cluster-networks,Cluster Networks>>
-4. <<network,Network>>
-   * <<disconnected-environment,Disconnected Environment>>
-   * <<proxy-details,Proxy Details>>
-   * <<alerting,Alerting>>
-   * <<image-registry,Image Registry>>
-5. <<validation,Validation>>
-   * <<install-config-yaml,Install-config.yaml>>
-   * <<agent-config-yaml,agent-config.yaml>>
-   * <<misc-validation,Miscellaneous Validation>>
-6. <<misc,Miscellaneous>>
-
-
-
-= Bastion host
+== Bastion host
 
 NOTE: This is only required if doing disconnected installations or to have a specific server for interacting with the cluster. 
 
@@ -57,7 +27,7 @@ https://docs.openshift.com/container-platform/4.14/installing/install_config/con
 option to create one.
 . A https://console.redhat.com/openshift/install/nutanix/installer-provisioned[Pull Secret] for fetching the images required for the installation.
 
-= Agent Based Installer
+== Agent Based Installer
 
 Using the Agent Based Installer for cluster deployments.
 The Agent-based installation method provides the flexibility to boot your on-premises servers in any way that you choose by leveraging the Assisted Service.
@@ -82,12 +52,12 @@ If booting virtualmedia via Redfish is not feasible, the Agent-Based Installer g
 
 NOTE: See the link:https://docs.openshift.com/container-platform/4.14/installing/installing_with_agent_based_installer/installing-with-agent-based-installer.html[Red Hat OpenShift documentation on Agent-Based Installer] for more information.
 
-== Host Configurations
+=== Host Configurations
 You can make additional configurations for each host on the cluster in the agent-config.yaml file, such as network configurations and root device hints.
 
 NOTE: For each host you configure, you must provide the MAC address of an interface on the host to specify which host you are configuring.
 
-=== Example agentconfig
+==== Example agentconfig
 ```yaml
 apiVersion: v1beta1
 kind: AgentConfig
@@ -118,7 +88,7 @@ hosts:
 ```
 TIP: More complex network configurations such as bonds etc are also possible to define here. See link:https://docs.openshift.com/container-platform/4.14/installing/installing_with_agent_based_installer/preparing-to-install-with-agent-based-installer.html#agent-install-sample-config-bonds-vlans_preparing-to-install-with-agent-based-installer[examples in the documentation]
 
-= Cluster
+== Cluster
 .Cluster Details
 [width="100%",cols="9%,26%,33%,32%",options="header",]
 |===
@@ -127,7 +97,7 @@ TIP: More complex network configurations such as bonds etc are also possible to 
 |2 |Cluster Name |cluster name such as ocp4 |[Replace with actual value]
 |===
 
-== Minimum Node Sizing
+=== Minimum Node Sizing
 .Minimum sizing
 |=== 
 | Machine          | Operating System           | Count | vCPU | Virtual RAM | Storage | Input/Output Per Second (IOPS)
@@ -137,7 +107,7 @@ TIP: More complex network configurations such as bonds etc are also possible to 
 
 NOTE: This is for normal installations, not counting SNO (Single Node OpenShift) or Compact clusters. 
 
-== DHCP (Optional)
+=== DHCP (Optional)
 .DHCP  
 [width="100%",cols="9%,26%,33%,32%",options="header",]
 |===
@@ -146,7 +116,7 @@ NOTE: This is for normal installations, not counting SNO (Single Node OpenShift)
 |2 |Range for DHCP |IP range for the Control Plane and Worker Nodes |[Replace with actual value]
 |===
 
-== Static IP's (Optional)
+=== Static IP's (Optional)
 .Static IP's  
 [width="100%",cols="9%,26%,33%,32%",options="header",]
 |===
@@ -155,7 +125,7 @@ NOTE: This is for normal installations, not counting SNO (Single Node OpenShift)
 |2 |Static IPs | For each node |[Replace with actual value]
 |===
 
-== DNS
+=== DNS
 All these records are resolvable by both clients external to the cluster and from all the nodes within the cluster.
 
 .DNS Records
@@ -172,7 +142,7 @@ All these records are resolvable by both clients external to the cluster and fro
 TIP: One API and one wildcard entry per cluster
 
 
-== Cluster SSL Certificates
+=== Cluster SSL Certificates
 .Cluster Certificates
 [width="100%",cols="25%,25%,25%,25%",options="header",]
 |===
@@ -181,7 +151,7 @@ TIP: One API and one wildcard entry per cluster
 |2 |Wildcard Certificate |*.apps.<cluster_name>.<base_domain> |Key and Cert (PEM format)
 |===
 
-== Cluster Networks
+=== Cluster Networks
 .Cluster Networks
 [cols=",,",options="header",]
 |===
@@ -200,7 +170,7 @@ the hostPrefix. A default value of 23 with a pod CIDR of /14 will allow for 512 
 pods per node.
 
 
-= Network
+== Network
 .Networks
 [width="99%",cols="20%,16%,16%,16%,16%,16%",options="header",]
 |===
@@ -235,7 +205,7 @@ network |Node Network |DHCP |67, 68 |UDP
 include::../disconnected/4.14.adoc[leveloffset=+1]
 
 
-== Proxy details
+=== Proxy details
 .Proxy
 [width="100%",cols="9%,26%,33%,32%",options="header",]
 |===
@@ -251,7 +221,7 @@ IMPORTANT: The Proxy object will use the link:#cluster-networks[Cluster
 Networks] to populate the noProxy variable.
 
 
-== Alerting
+=== Alerting
 .Alerting
 [cols=",,,,",options="header",]
 |===
@@ -260,15 +230,15 @@ Networks] to populate the noProxy variable.
 |===
 
 
-== Image Registry 
+=== Image Registry 
 
 At least 100 GB block storage is available for cluster internal registry if no file storage is available.
 
-= Validation
+== Validation
 
 The Agent-based Installer performs validation checks on user defined YAML files before the ISO is created. Once the validations are successful, the agent ISO is created.
 
-== Install-config.yaml
+=== Install-config.yaml
 
 baremetal, vsphere and none platforms are supported.
 
@@ -278,7 +248,7 @@ apiVIPs and ingressVIPs parameters must be set for bare metal and vSphere platfo
 
 Some host-specific fields in the bare metal platform configuration that have equivalents in agent-config.yaml file are ignored. A warning message is logged if these fields are set.
 
-== agent-config.yaml
+=== agent-config.yaml
 
 Each interface must have a defined MAC address. Additionally, all interfaces must have a different MAC address.
 
@@ -289,7 +259,7 @@ World Wide Name (WWN) vendor extensions are not supported in root device hints.
 The role parameter in the host object must have a value of either master or worker.
 
 
-== Miscellaneous Validation
+=== Miscellaneous Validation
 * Ensure there are no duplicates with regards to the link:#DNS[DNS
 Entries].
 +
@@ -313,7 +283,7 @@ nc -zv <git_url> 443
 nc -zv <git_url> 22
 ----
 
-= Misc 
+== Misc 
 
 NOTE: After installing the oc and openshift-install binaries, it is useful to set up (and source) the bash commands completion:
 

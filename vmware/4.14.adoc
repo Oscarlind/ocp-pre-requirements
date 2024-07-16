@@ -6,7 +6,7 @@ This document contains the pre-requisites to deploy **OpenShift 4.14** IPI clust
 link:https://docs.openshift.com/container-platform/4.14/installing/installing_vsphere/installing-vsphere-installer-provisioned.html[Please
 refer to the official documentation for more information]
 
-= Bastion host
+== Bastion host
 
 Bastion host specifications.
 
@@ -46,7 +46,7 @@ binary or the possibility to download it.
 https://console.redhat.com/openshift/install/nutanix/installer-provisioned[Pull
 Secret] for fetching the images required for the installation.
 
-= VMware
+== VMware
 Pre-requisites for VMware versions.
 
 * ESXi hosts time are synchronized.
@@ -64,7 +64,7 @@ Pre-requisites for VMware versions.
 |===
 
 
-= Cluster
+== Cluster
 
 [width="100%",cols="9%,26%,33%,32%",options="header",]
 |===
@@ -73,7 +73,7 @@ Pre-requisites for VMware versions.
 |2 |Cluster Name |cluster name such as ocp4 |[Replace with actual value]
 |===
 
-== Minimum Node Sizing
+=== Minimum Node Sizing
 |=== 
 | Machine          | Operating System           | Count | vCPU | Virtual RAM | Storage | Input/Output Per Second (IOPS)
 | Bootstrap        | RHCOS                      |1      | 4    | 16 GB       | 100 GB  | 300
@@ -83,7 +83,7 @@ Pre-requisites for VMware versions.
 
 NOTE: This is for normal installations, not counting SNO (Single Node OpenShift) or Compact clusters. 
 
-== DHCP
+=== DHCP
   
 
 [width="100%",cols="9%,26%,33%,32%",options="header",]
@@ -93,7 +93,7 @@ NOTE: This is for normal installations, not counting SNO (Single Node OpenShift)
 |2 |Range for DHCP |IP range for the Control Plane and Worker Nodes |[Replace with actual value]
 |===
 
-== DNS
+=== DNS
 
 All these records are resolvable by both clients external to the cluster and from all the nodes within the cluster.
 
@@ -108,7 +108,7 @@ All these records are resolvable by both clients external to the cluster and fro
 TIP: One API and one wildcard entry per cluster
 
 
-== Cluster SSL Certificates
+=== Cluster SSL Certificates
 
 [width="100%",cols="25%,25%,25%,25%",options="header",]
 |===
@@ -117,7 +117,7 @@ TIP: One API and one wildcard entry per cluster
 |2 |Wildcard Certificate |*.apps.<cluster_name>.<base_domain> |Key and Cert (PEM format)
 |===
 
-== Cluster Networks
+=== Cluster Networks
 
 [cols=",,",options="header",]
 |===
@@ -136,7 +136,7 @@ the hostPrefix. A default value of 23 with a pod CIDR of /14 will allow for 512 
 pods per node.
 
 
-= Network
+== Network
 
 [width="99%",cols="20%,16%,16%,16%,16%,16%",options="header",]
 |===
@@ -168,7 +168,7 @@ ____
 . The default gateway should be configured to use the DHCP server.
 ____
 
-== Proxy details
+=== Proxy details
 
 [width="100%",cols="9%,26%,33%,32%",options="header",]
 |===
@@ -184,7 +184,7 @@ IMPORTANT: The Proxy object will use the link:#cluster-networks[Cluster
 Networks] to populate the noProxy variable.
 
 
-== Alerting
+=== Alerting
 
 [cols=",,,,",options="header",]
 |===
@@ -193,11 +193,11 @@ Networks] to populate the noProxy variable.
 |===
 
 
-== Image Registry 
+=== Image Registry 
 
 At least 100 GB block storage is available for cluster internal registry if no file storage is available.
 
-= Validation
+== Validation
 
 The OpenShift installer does not validate the sanity of the DNS records,
 network or DHCP etc while deploying a cluster. Its expected the
@@ -236,7 +236,7 @@ nc -zv <git_url> 22
 ----
 
 
-= Misc 
+== Misc 
 
 NOTE: 
 After installing the oc and openshift-install binaries, it is useful to set up (and source) the bash commands completion:

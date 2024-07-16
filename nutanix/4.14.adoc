@@ -6,7 +6,7 @@ This document contains the pre-requisites to deploy clusters on
 link:https://docs.openshift.com/container-platform/4.14/installing/installing_nutanix/installing-nutanix-installer-provisioned.html.[Please
 refer to the official documentation for more information]
 
-= Bastion host
+== Bastion host
 
 Bastion host specifications.
 
@@ -50,7 +50,7 @@ binary or the possibility to download it.
 https://console.redhat.com/openshift/install/nutanix/installer-provisioned[Pull
 Secret] for fetching the images required for the installation.
 
-= Nutanix
+== Nutanix
 Pre-requisites for Nutanix versions.
 
 [width="100%",cols="50%,50%",options="header",]
@@ -64,7 +64,7 @@ Pre-requisites for Nutanix versions.
 |https://docs.openshift.com/container-platform/4.14/installing/installing_nutanix/preparing-to-install-on-nutanix.html#installation-nutanix-installer-infra-reqs-account_preparing-to-install-on-nutanix[List]
 |===
 
-== Nutanix Storage
+=== Nutanix Storage
 
 Prerequisites for CSI Integration can be found here:
 https://portal.nutanix.com/page/documents/details?targetId=CSI-Volume-Driver-v2_6:csi-csi-plugin-prerequisites-r.html[Nutanix
@@ -74,7 +74,7 @@ Firewall requirements for the CSI Integration can be found here:
 https://portal.nutanix.com/page/documents/list?type=software&filterKey=software&filterVal=Ports%20and%20Protocols&productType=CSI%20Volume%20Driver[Nutanix
 CSI Driver Firewall Configutation]
 
-== Nutanix Certificates
+=== Nutanix Certificates
 
 The Nutanix environment needs to use a certificate signed by a CA.
 
@@ -82,9 +82,9 @@ More information can be found in the
 https://docs.openshift.com/container-platform/4.14/installing/installing_nutanix/installing-nutanix-installer-provisioned.html#prerequisites[OpenShift
 Documentation]
 
-= Cluster
+== Cluster
 
-== DNS
+=== DNS
 
 [width="100%",cols="25%,25%,25%,25%",options="header",]
 |===
@@ -97,7 +97,7 @@ Documentation]
 TIP: One API and one wildcard entry per cluster
 
 
-== Cluster SSL Certificates
+=== Cluster SSL Certificates
 
 [width="100%",cols="25%,25%,25%,25%",options="header",]
 |===
@@ -106,7 +106,7 @@ TIP: One API and one wildcard entry per cluster
 |2 |Wildcard Certificate |*.apps.<cluster_name>.<base_domain> |Key and Cert (PEM format)
 |===
 
-== Cluster Networks
+=== Cluster Networks
 
 [cols=",,",options="header",]
 |===
@@ -125,7 +125,7 @@ the hostPrefix. A default value of 23 with a pod CIDR of /14 will allow for 512 
 pods per node.
 
 
-= Network
+== Network
 
 [width="99%",cols="20%,16%,16%,16%,16%,16%",options="header",]
 |===
@@ -181,7 +181,7 @@ Networks] to populate the noProxy variable.
 |Outbound to the SMTP server |Node Network |SMTP Server |587 |TCP
 |===
 
-= Validation
+== Validation
 
 The OpenShift installer does not validate the sanity of the DNS records,
 network or DHCP etc while deploying a cluster. Its expected the
@@ -219,7 +219,7 @@ nc -zv <git_url> 443
 nc -zv <git_url> 22
 ----
 
-= Misc 
+== Misc 
 
 NOTE: 
 After installing the oc and openshift-install binaries, it is useful to set up (and source) the bash commands completion:

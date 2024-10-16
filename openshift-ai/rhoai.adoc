@@ -1,0 +1,81 @@
+= OpenShift AI Requirements
+
+This file holds the prerequisites to deploy Red Hat OpenShift AI (RHOAI) on an OpenShift Container Platform (OCP) cluster.
+
+[NOTE]
+====
+Please refer to the official documentation for more information: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2.13/html-single/installing_and_uninstalling_openshift_ai_self-managed/index#installing-and-deploying-openshift-ai_install
+====
+
+== Git Repository
+
+* Set up Git repositories for hosting RHOAI configurations.
+* OpenShift Pipelines will be utilized for automating the building of custom Workbench images from a Git repository.
+
+== OpenShift Container Platform Cluster
+
+* **OpenShift Version:** OpenShift Container Platform 4.12 or later.
+* **Worker Nodes:**
+  * At least **2 worker nodes** dedicated for OpenShift AI workloads.
+  * Each node should have:
+    * **CPU:** Minimum of 8 CPUs.
+    * **Memory:** Minimum of 32 GiB RAM.
+* **GPU Support:**
+  * GPUs are supported by Red Hat OpenShift AI.
+  * configured to be available to the Red Hat OpenShift host worker nodes.
+* **Storage:**
+  * A StorageClass with dynamic provisioning should be configured.
+  * Ensure sufficient storage capacity for AI workloads.
+  * Customer has S3-compatible object storage that is accessible to the target OpenShift cluster.
+* **OpenShift Components:**
+  * Target OpenShift has the OpenShift internal image registry enabled.
+  * OpenDataHub has **not** previously been installed on the target OpenShift cluster.
+  * ServiceMesh has **not** previously been installed on the target OpenShift cluster.
+  * Serverless has **not** previously been installed on the target OpenShift cluster.
+* **Identity and Access Management:**
+  * An identity provider configured for the OCP cluster.
+  * Client has OpenShift OAuth and Group Sync configured.
+  * `cluster-admin` access to the target OpenShift will be made available via a user or group.
+* **TLS and Certificates:**
+  * Target OpenShift has properly configured TLS certificates.
+  * OpenShift is configured to trust certificates from external resources.
+
+== Internet Access
+
+The following domains must be accessible during the installation of OpenShift AI Self-Managed:
+
+* `cdn.redhat.com`
+* `subscription.rhn.redhat.com`
+* `registry.access.redhat.com`
+* `registry.redhat.io`
+* `quay.io`
+
+For CUDA-based images, the following domains must be accessible:
+
+* `ngc.download.nvidia.cn`
+* `developer.download.nvidia.com`
+
+== Additional Requirements
+
+* **Network Configuration:**
+  * All cluster nodes must be able to communicate over the network.
+  * Configure DNS entries for API and application routes if necessary.
+* **Load Balancer:**
+  * If using external load balancers, ensure they are properly configured.
+* **Subscriptions:**
+  * Ensure you have valid Red Hat subscriptions for OpenShift AI and its components.
+
+
+
+== Preparation Steps
+
+1. **Update OpenShift Cluster:**
+   * Apply the latest updates and patches to OCP.
+2. **Verify Cluster Health:**
+   * Run `oc get nodes` and ensure all nodes are in the `Ready` state.
+   * Run `oc get clusteroperators` to ensure all operators are functioning correctly.
+3. **Verify Components Not Installed:**
+   * Ensure that OpenDataHub has **not** previously been installed on the target OpenShift cluster.
+   * Ensure that ServiceMesh has **not** previously been installed on the target OpenShift cluster.
+   * Ensure that Serverless has **not** previously been installed on the target OpenShift cluster.
+

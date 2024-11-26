@@ -1,10 +1,8 @@
 == RHACM - Red Hat Advanced Cluster Management
 
-=== Placeholder
-
 === RHACM networking requirements
 
-.Hub Cluster Network Requirements
+==== Hub Cluster Network Requirements
 [cols=6,cols="2,2,2,3,1,3",options=header]
 |===
 | Source | Destination | Protocol | Connection | Port | Destination address
@@ -57,12 +55,10 @@
 | Access images for OpenShift Container Platform and Red Hat Advanced Cluster Management
 | 443
 | IP address of image repository
-
 |===
 
-.Managed Cluster Network Requirements
+==== Managed Cluster Network Requirements
 [cols=6,cols="2,2,2,3,1,3",options=header]
-
 |===
 | Source | Destination | Protocol | Connection | Port | Destination address
 
@@ -107,5 +103,4 @@
 | The channel source, including GitHub, Object Store, and Helm repository, which is only required when you are using Application lifecycle, OpenShift GitOps, or Argo CD to connect
 | 443
 | IP of the channel source
-
 |===

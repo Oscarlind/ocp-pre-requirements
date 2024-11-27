@@ -54,6 +54,7 @@ For CUDA-based images, the following domains must be accessible:
 
 * `ngc.download.nvidia.cn`
 * `developer.download.nvidia.com`
+* `nvcr.io` 
 
 == Additional Requirements
 
